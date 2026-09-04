@@ -1,0 +1,25 @@
+# === Build output ===
+target/
+
+# === IDE ===
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Env ===
+.env
+*.env
+
+# === Logs ===
+*.log
+
+# === Legacy jar (now managed by Maven) ===
+mysql-connector-j-*.jar
