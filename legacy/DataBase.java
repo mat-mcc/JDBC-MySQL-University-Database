@@ -7,9 +7,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
+
+/*
+ *      MATTHEW MCCAUGHAN
+ *      JDBC APPLICATION & MySQL DATABASE : UNI DATABASE PROJECT
+ *      APRIL 18th, 2023
+ */
+
 // DataBase.java (Legacy)
-// Original standalone CLI application using direct raw JDBC and MySQL connections.
-// Serves as the historical baseline query tool superseded by the Spring Boot REST architecture.
+// Original standalone command-line interface application using direct raw JDBC and MySQL connections.
+// This is the old application, superseded by the Spring Boot REST architecture.
 // Matthew McCaughan - JDBC Application & MySQL Database : Uni Database Project (April 2023)
 
 public class DataBase {
