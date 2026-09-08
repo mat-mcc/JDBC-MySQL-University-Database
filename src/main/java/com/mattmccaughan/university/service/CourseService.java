@@ -1,3 +1,6 @@
+// CourseService.java
+// Service layer managing business logic for university courses.
+// Handles course creation, updates, capacity tracking, roster queries, and deletion.
 package com.mattmccaughan.university.service;
 
 import com.mattmccaughan.university.dto.CourseCreateRequest;
@@ -30,18 +33,21 @@ public class CourseService {
     private final CourseMapper courseMapper;
     private final EnrollmentMapper enrollmentMapper;
 
+    // Retrieves a paginated list of all courses enriched with current enrollment counts.
     @Transactional(readOnly = true)
     public Page<CourseDto> getAllCourses(Pageable pageable) {
         return courseRepository.findAll(pageable)
                 .map(this::mapToDtoWithEnrollmentCount);
     }
 
+    // Fetches a single course by its ID, returning its details and current enrollment count.
     @Transactional(readOnly = true)
     public CourseDto getCourseById(Long id) {
         Course course = findCourseOrThrow(id);
         return mapToDtoWithEnrollmentCount(course);
     }
 
+    // Creates a new course under the specified department.
     @Transactional
     public CourseDto createCourse(CourseCreateRequest request) {
         Department department = departmentRepository.findById(request.getDepartmentId())
@@ -57,6 +63,7 @@ public class CourseService {
         return mapToDtoWithEnrollmentCount(saved);
     }
 
+    // Updates an existing course's details and offering department.
     @Transactional
     public CourseDto updateCourse(Long id, CourseCreateRequest request) {
         Course course = findCourseOrThrow(id);
@@ -73,12 +80,14 @@ public class CourseService {
         return mapToDtoWithEnrollmentCount(saved);
     }
 
+    // Deletes a course from the database by ID.
     @Transactional
     public void deleteCourse(Long id) {
         Course course = findCourseOrThrow(id);
         courseRepository.delete(course);
     }
 
+    // Retrieves the active student roster (ENROLLED status) for a given course ID.
     @Transactional(readOnly = true)
     public List<EnrollmentDto> getRoster(Long courseId) {
         if (!courseRepository.existsById(courseId)) {
@@ -87,11 +96,13 @@ public class CourseService {
         return enrollmentMapper.toDtoList(enrollmentRepository.findByCourseIdAndStatus(courseId, EnrollmentStatus.ENROLLED));
     }
 
+    // Helper method to look up a Course entity or throw ResourceNotFoundException.
     private Course findCourseOrThrow(Long id) {
         return courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Course", "id", id));
     }
 
+    // Helper method to compute active enrollment count and map Course entity to CourseDto.
     private CourseDto mapToDtoWithEnrollmentCount(Course course) {
         long currentEnrollment = enrollmentRepository.countByCourseIdAndStatus(course.getId(), EnrollmentStatus.ENROLLED);
         return courseMapper.toDto(course, currentEnrollment);

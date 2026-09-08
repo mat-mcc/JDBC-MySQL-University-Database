@@ -1,8 +1,12 @@
+# generate_seed_data.py
+# Utility script for generating realistic synthetic data (departments, courses, students, majors/minors, enrollments).
+# Can either output raw SQL statements or insert directly into a target MySQL database.
 # pyrefly: ignore [missing-import]
 import mysql.connector
 import argparse
 import random
 import os
+
 
 DEPARTMENTS = [
     ("Biology", "Busch"),

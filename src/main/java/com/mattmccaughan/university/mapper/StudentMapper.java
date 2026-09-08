@@ -1,3 +1,6 @@
+// StudentMapper.java
+// Component responsible for transforming Student JPA entities into StudentDto response objects.
+// Extracts and alphabetizes major and minor department name lists.
 package com.mattmccaughan.university.mapper;
 
 import com.mattmccaughan.university.dto.StudentDto;
@@ -10,6 +13,7 @@ import java.util.List;
 @Component
 public class StudentMapper {
 
+    // Converts a Student entity into a StudentDto with sorted major and minor department names.
     public StudentDto toDto(Student student) {
         return StudentDto.builder()
                 .id(student.getId())
@@ -28,7 +32,9 @@ public class StudentMapper {
                 .build();
     }
 
+    // Converts a list of Student entities into a list of StudentDto objects.
     public List<StudentDto> toDtoList(List<Student> students) {
         return students.stream().map(this::toDto).toList();
     }
 }
+

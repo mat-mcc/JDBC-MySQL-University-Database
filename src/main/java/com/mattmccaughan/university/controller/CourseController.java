@@ -1,3 +1,6 @@
+// CourseController.java
+// REST Controller exposing endpoints for university courses.
+// Maps endpoints under /api/courses for listing, creating, updating, deleting courses, and viewing rosters.
 package com.mattmccaughan.university.controller;
 
 import com.mattmccaughan.university.dto.CourseCreateRequest;
@@ -24,22 +27,26 @@ public class CourseController {
 
     private final CourseService courseService;
 
+    // GET /api/courses - Retrieves paginated list of all courses.
     @GetMapping
     public Page<CourseDto> getAllCourses(@ParameterObject Pageable pageable) {
         return courseService.getAllCourses(pageable);
     }
 
+    // GET /api/courses/{id} - Retrieves course details by course ID.
     @GetMapping("/{id}")
     public CourseDto getCourseById(@PathVariable Long id) {
         return courseService.getCourseById(id);
     }
 
+    // POST /api/courses - Creates a new course.
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CourseDto createCourse(@Valid @RequestBody CourseCreateRequest request) {
         return courseService.createCourse(request);
     }
 
+    // PUT /api/courses/{id} - Updates an existing course by course ID.
     @PutMapping("/{id}")
     public CourseDto updateCourse(
             @PathVariable Long id, 
@@ -47,14 +54,17 @@ public class CourseController {
         return courseService.updateCourse(id, request);
     }
 
+    // DELETE /api/courses/{id} - Deletes a course by course ID.
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
     }
 
+    // GET /api/courses/{id}/roster - Retrieves list of active enrolled students for a course.
     @GetMapping("/{id}/roster")
     public List<EnrollmentDto> getRoster(@PathVariable Long id) {
         return courseService.getRoster(id);
     }
 }
+

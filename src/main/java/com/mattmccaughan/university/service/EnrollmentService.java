@@ -1,3 +1,6 @@
+// EnrollmentService.java
+// Service layer managing course registrations, grade submissions, and enrollment lifecycle state transitions.
+// Enforces duplicate enrollment prevention, course capacity constraints, and grade validation rules.
 package com.mattmccaughan.university.service;
 
 import com.mattmccaughan.university.dto.EnrollmentDto;
@@ -29,6 +32,7 @@ public class EnrollmentService {
     private final CourseRepository courseRepository;
     private final EnrollmentMapper enrollmentMapper;
 
+    // Enrolls a student into a course after verifying existence, capacity, and active enrollment uniqueness.
     @Transactional
     public EnrollmentDto enroll(Long studentId, EnrollmentRequest request) {
         Student student = studentRepository.findById(studentId)
@@ -37,10 +41,12 @@ public class EnrollmentService {
         Course course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Course", "id", request.getCourseId()));
 
+        // Prevent duplicate active enrollments
         if (enrollmentRepository.existsByStudentIdAndCourseIdAndStatus(studentId, course.getId(), EnrollmentStatus.ENROLLED)) {
             throw new DuplicateEnrollmentException(studentId, course.getId());
         }
 
+        // Verify course capacity limit
         long currentEnrollment = enrollmentRepository.countByCourseIdAndStatus(course.getId(), EnrollmentStatus.ENROLLED);
         if (currentEnrollment >= course.getMaxEnrollment()) {
             throw new CourseAtCapacityException(course.getId(), course.getMaxEnrollment());
@@ -55,6 +61,7 @@ public class EnrollmentService {
         return enrollmentMapper.toDto(saved);
     }
 
+    // Updates an enrollment's lifecycle status (e.g., assigning a grade upon completion or dropping).
     @Transactional
     public EnrollmentDto updateEnrollment(Long enrollmentId, GradeUpdateRequest request) {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
@@ -62,6 +69,7 @@ public class EnrollmentService {
 
         enrollment.setStatus(request.getStatus());
 
+        // Validate and assign grade when completing a course
         if (request.getStatus() == EnrollmentStatus.COMPLETED) {
             if (request.getGrade() == null || request.getGrade().trim().isEmpty()) {
                 throw new IllegalArgumentException("Grade must be provided when completing a course");
@@ -75,6 +83,7 @@ public class EnrollmentService {
         return enrollmentMapper.toDto(saved);
     }
 
+    // Retrieves a specific enrollment record by ID.
     @Transactional(readOnly = true)
     public EnrollmentDto getEnrollmentById(Long id) {
         Enrollment enrollment = enrollmentRepository.findById(id)
@@ -82,8 +91,10 @@ public class EnrollmentService {
         return enrollmentMapper.toDto(enrollment);
     }
     
+    // Retrieves all enrollments for a given student, optionally filtered by status.
     @Transactional(readOnly = true)
     public List<EnrollmentDto> getStudentEnrollments(Long studentId, EnrollmentStatus status) {
+
         if (!studentRepository.existsById(studentId)) {
             throw new ResourceNotFoundException("Student", "id", studentId);
         }

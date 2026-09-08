@@ -1,3 +1,6 @@
+// EnrollmentMapper.java
+// Component responsible for transforming Enrollment JPA entities into EnrollmentDto response objects.
+// Maps nested student and course associations into a flat structure.
 package com.mattmccaughan.university.mapper;
 
 import com.mattmccaughan.university.dto.EnrollmentDto;
@@ -9,6 +12,7 @@ import java.util.List;
 @Component
 public class EnrollmentMapper {
 
+    // Converts an Enrollment entity into an EnrollmentDto, populating student name and course details.
     public EnrollmentDto toDto(Enrollment enrollment) {
         return EnrollmentDto.builder()
                 .id(enrollment.getId())
@@ -23,7 +27,9 @@ public class EnrollmentMapper {
                 .build();
     }
 
+    // Converts a list of Enrollment entities into a list of EnrollmentDto objects.
     public List<EnrollmentDto> toDtoList(List<Enrollment> enrollments) {
         return enrollments.stream().map(this::toDto).toList();
     }
 }
+

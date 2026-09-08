@@ -1,9 +1,11 @@
-#Matthew McCaughan
-#Uni Database Data Generator
+# DataGen.py (Legacy)
+# Original random data generation script for generating legacy schema SQL statements.
+# Matthew McCaughan - Uni Database Data Generator (April 2023)
 
 import random
 import math
 import time
+
 
 def tables():
     print()

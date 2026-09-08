@@ -1,3 +1,6 @@
+// StudentService.java
+// Service layer managing student profiles, major/minor affiliations, GPA calculation, and academic transcripts.
+// Contains business logic for degree requirements, grading scale conversions, and student lifecycle management.
 package com.mattmccaughan.university.service;
 
 import com.mattmccaughan.university.dto.*;
@@ -33,16 +36,19 @@ public class StudentService {
     private final StudentMapper studentMapper;
     private final EnrollmentMapper enrollmentMapper;
 
+    // Retrieves a paginated list of all students.
     @Transactional(readOnly = true)
     public Page<StudentDto> getAllStudents(Pageable pageable) {
         return studentRepository.findAll(pageable).map(studentMapper::toDto);
     }
 
+    // Retrieves a single student by ID.
     @Transactional(readOnly = true)
     public StudentDto getStudentById(Long id) {
         return studentMapper.toDto(findStudentOrThrow(id));
     }
 
+    // Creates a new student and assigns their declared majors and minors.
     @Transactional
     public StudentDto createStudent(StudentCreateRequest request) {
         Student student = new Student();
@@ -56,6 +62,7 @@ public class StudentService {
         return studentMapper.toDto(saved);
     }
 
+    // Updates an existing student's profile information and academic affiliations.
     @Transactional
     public StudentDto updateStudent(Long id, StudentUpdateRequest request) {
         Student student = findStudentOrThrow(id);
@@ -69,12 +76,14 @@ public class StudentService {
         return studentMapper.toDto(saved);
     }
 
+    // Deletes a student from the database by ID.
     @Transactional
     public void deleteStudent(Long id) {
         Student student = findStudentOrThrow(id);
         studentRepository.delete(student);
     }
 
+    // Computes and returns the cumulative GPA for a specific student.
     @Transactional(readOnly = true)
     public GpaDto getGpa(Long studentId) {
         if (!studentRepository.existsById(studentId)) {
@@ -84,6 +93,7 @@ public class StudentService {
         return calculateGpa(completedEnrollments);
     }
 
+    // Generates a comprehensive academic transcript with student info, course enrollments, and cumulative GPA.
     @Transactional(readOnly = true)
     public TranscriptDto getTranscript(Long studentId) {
         Student student = findStudentOrThrow(studentId);
@@ -102,11 +112,13 @@ public class StudentService {
                 .build();
     }
 
+    // Helper method to look up a Student entity or throw ResourceNotFoundException.
     private Student findStudentOrThrow(Long id) {
         return studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
     }
 
+    // Helper method to synchronize major and minor department sets on a student entity.
     private void updateMajorsAndMinors(Student student, Set<Long> majorIds, Set<Long> minorIds) {
         if (majorIds != null && !majorIds.isEmpty()) {
             Set<Department> majors = new HashSet<>(departmentRepository.findAllById(majorIds));
@@ -123,6 +135,7 @@ public class StudentService {
         }
     }
 
+    // Helper method to calculate quality points, total earned credits, and resulting GPA based on standard grading scale.
     private GpaDto calculateGpa(List<Enrollment> completedEnrollments) {
         if (completedEnrollments.isEmpty()) {
             return GpaDto.builder().gpa(0.0).totalCredits(0).totalGradePoints(0.0).build();
